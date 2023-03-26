@@ -1,10 +1,12 @@
 import React from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 
 import { UPDATE_ORGANIZATION_MUTATION } from 'GraphQl/Mutations/mutations';
 import styles from './OrgUpdate.module.css';
 import { ORGANIZATIONS_LIST } from 'GraphQl/Queries/Queries';
+import convertToBase64 from 'utils/convertToBase64';
 
 interface OrgUpdateProps {
   id: string;
@@ -18,6 +20,7 @@ function OrgUpdate(props: OrgUpdateProps): JSX.Element {
     orgName: '',
     orgDescrip: '',
     location: '',
+    orgImage: '',
   });
   const [publicchecked, setPublicChecked] = React.useState(true);
   const [visiblechecked, setVisibleChecked] = React.useState(false);
@@ -35,6 +38,7 @@ function OrgUpdate(props: OrgUpdateProps): JSX.Element {
         orgName: data.organizations[0].name,
         orgDescrip: data.organizations[0].description,
         location: data.organizations[0].location,
+        orgImage: data.organizations[0].image,
       });
     }
   }, [data]);
@@ -51,16 +55,25 @@ function OrgUpdate(props: OrgUpdateProps): JSX.Element {
           location: formState.location,
           isPublic: publicchecked,
           visibleInSearch: visiblechecked,
+          file: formState.orgImage,
         },
       });
       /* istanbul ignore next */
       if (data) {
-        window.alert('Successful updated');
-        window.location.reload();
+        toast.success('Successful updated');
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
-    } catch (error) {
+    } catch (error: any) {
       /* istanbul ignore next */
-      window.alert(error);
+      if (error.message === 'Failed to fetch') {
+        toast.error(
+          'Talawa-API service is unavailable. Is it running? Check your network connectivity too.'
+        );
+      } else {
+        toast.error(error.message);
+      }
     }
   };
 
@@ -139,7 +152,15 @@ function OrgUpdate(props: OrgUpdateProps): JSX.Element {
                   name="photo"
                   type="file"
                   multiple={false}
-                  //onChange=""
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file)
+                      setFormState({
+                        ...formState,
+                        orgImage: await convertToBase64(file),
+                      });
+                  }}
+                  data-testid="organisationImage"
                 />
               </label>
             </div>

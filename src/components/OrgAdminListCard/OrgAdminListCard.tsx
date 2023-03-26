@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 import styles from './OrgAdminListCard.module.css';
 import { REMOVE_ADMIN_MUTATION } from 'GraphQl/Mutations/mutations';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import defaultImg from 'assets/third_image.png';
 
 interface OrgPeopleListCardProps {
   key: string;
@@ -37,12 +39,20 @@ function OrgAdminListCard(props: OrgPeopleListCardProps): JSX.Element {
 
       /* istanbul ignore next */
       if (data) {
-        window.alert('The admin is removed.');
-        window.location.reload();
+        toast.success('The admin is removed.');
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
     } catch (error: any) {
       /* istanbul ignore next */
-      toast.error(error.message);
+      if (error.message === 'Failed to fetch') {
+        toast.error(
+          'Talawa-API service is unavailable. Is it running? Check your network connectivity too.'
+        );
+      } else {
+        toast.error(error.message);
+      }
     }
   };
   return (
@@ -52,16 +62,19 @@ function OrgAdminListCard(props: OrgPeopleListCardProps): JSX.Element {
           {props.memberImage ? (
             <img src={props.memberImage} className={styles.memberimg} />
           ) : (
-            <img
-              src="https://via.placeholder.com/200x100"
-              className={styles.memberimg}
-            />
+            <img src={defaultImg} className={styles.memberimg} />
           )}
           <Col className={styles.singledetails}>
             <div className={styles.singledetails_data_left}>
-              <p className={styles.membername}>
+              <Link
+                className={styles.membername}
+                to={{
+                  pathname: `/member/id=${currentUrl}`,
+                  state: { id: props.id },
+                }}
+              >
                 {props.memberName ? <>{props.memberName}</> : <>Dogs Care</>}
-              </p>
+              </Link>
               <p className={styles.memberfontcreated}>{props.memberEmail}</p>
             </div>
             <div className={styles.singledetails_data_right}>

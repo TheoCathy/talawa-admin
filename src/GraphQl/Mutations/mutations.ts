@@ -52,6 +52,7 @@ export const UPDATE_ORGANIZATION_MUTATION = gql`
     $location: String
     $isPublic: Boolean
     $visibleInSearch: Boolean
+    $file: String
   ) {
     updateOrganization(
       id: $id
@@ -62,6 +63,7 @@ export const UPDATE_ORGANIZATION_MUTATION = gql`
         visibleInSearch: $visibleInSearch
         location: $location
       }
+      file: $file
     ) {
       _id
     }
@@ -75,9 +77,31 @@ export const UPDATE_USER_MUTATION = gql`
     $firstName: String
     $lastName: String
     $email: EmailAddress
+    $file: String
   ) {
     updateUserProfile(
       data: { firstName: $firstName, lastName: $lastName, email: $email }
+      file: $file
+    ) {
+      _id
+    }
+  }
+`;
+
+// to update the password of user
+
+export const UPDATE_USER_PASSWORD_MUTATION = gql`
+  mutation UpdateUserPassword(
+    $previousPassword: String!
+    $newPassword: String!
+    $confirmNewPassword: String!
+  ) {
+    updateUserPassword(
+      data: {
+        previousPassword: $previousPassword
+        newPassword: $newPassword
+        confirmNewPassword: $confirmNewPassword
+      }
     ) {
       _id
     }
@@ -255,6 +279,7 @@ export const CREATE_POST_MUTATION = gql`
     $imageUrl: URL
     $videoUrl: URL
     $organizationId: ID!
+    $file: String
   ) {
     createPost(
       data: {
@@ -264,6 +289,7 @@ export const CREATE_POST_MUTATION = gql`
         videoUrl: $videoUrl
         organizationId: $organizationId
       }
+      file: $file
     ) {
       _id
     }
